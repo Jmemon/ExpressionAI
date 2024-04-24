@@ -97,7 +97,6 @@ func storeChunkAndSwapBuffers() {
 }
 
 func main() {
-    init()
     defer func() {
         if err := mongoClient.Disconnect(context.TODO()); err != nil {
             log.Fatalf("Error disconnecting from MongoDB: %v", err)
