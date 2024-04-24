@@ -7,12 +7,14 @@ import (
     "sync"
 
     "github.com/gorilla/websocket"
+	"go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
     mongoURI = "mongodb://localhost:27017"
+	maxChunkSize = 15 * 1024 * 1024  // 15 Mb
 )
 
 var (
@@ -90,12 +92,12 @@ func storeChunkAndSwapBuffers() {
     // Insert the chunk into the MongoDB
     _, err := audioDataCollection.InsertOne(context.Background(), doc)
     if err != nil {
-        log.Printf("Failed to store audio chunk: %v", err)
+    	log.Printf("Failed to store audio chunk: %v", err)
     }
 }
 
 func main() {
-	init()
+    init()
     defer func() {
         if err := mongoClient.Disconnect(context.TODO()); err != nil {
             log.Fatalf("Error disconnecting from MongoDB: %v", err)
