@@ -49,6 +49,7 @@ func handleAudioStream(w http.ResponseWriter, r *http.Request) {
     }
     defer conn.Close()
 
+	log.Print("Connection Opened")
     for {
         _, message, err := conn.ReadMessage()
         if err != nil {
@@ -58,6 +59,7 @@ func handleAudioStream(w http.ResponseWriter, r *http.Request) {
 
         bufferMutex.Lock()
         if len(*currentBuffer) + len(message) > maxChunkSize {
+			log.Print("Storing audio")
             go storeChunkAndSwapBuffers() // Store current buffer and swap buffers in a goroutine
         }
         *currentBuffer = append(*currentBuffer, message...)
@@ -98,7 +100,7 @@ func storeChunkAndSwapBuffers() {
 
 func main() {
     defer func() {
-        if err := mongoClient.Disconnect(context.TODO()); err != nil {
+        if err := mongoClient.Disconnect(context.Background()); err != nil {
             log.Fatalf("Error disconnecting from MongoDB: %v", err)
         }
     }()
